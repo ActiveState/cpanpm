@@ -3300,6 +3300,10 @@ sub test {
                 $self->pretty_id));
     }
     $self->store_persistent_state;
+    if ( $tests_ok ) {
+        use Fly::MakePPD;
+        Fly::MakePPD::cpan_dist($self);
+    }
 }
 
 sub _make_test_illuminate_prereqs {
