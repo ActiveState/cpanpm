@@ -1936,6 +1936,7 @@ is part of the perl-%s distribution. To install that, you need to run
                 $CPAN::Config->{inactivity_timeout} = 0;
             }
         }
+        $CPAN::Frontend->myprint(">>> $system\n");
         if ($go_via_alarm) {
             if ( $self->_should_report('pl') ) {
                 ($output, $ret) = CPAN::Reporter::record_command(
@@ -2070,6 +2071,7 @@ is part of the perl-%s distribution. To install that, you need to run
         }
     }
     my $system_ok;
+    $CPAN::Frontend->myprint(">>> $system\n");
     if ($want_expect) {
         # XXX probably want to check _should_report here and
         # warn about not being able to use CPAN::Reporter with expect
@@ -3255,6 +3257,7 @@ sub test {
                                     "testing without\n");
         }
     }
+    $CPAN::Frontend->myprint(">>> $system\n");
     if ($want_expect) {
         if ($self->_should_report('test')) {
             $CPAN::Frontend->mywarn("Reporting via CPAN::Reporter is currently ".
