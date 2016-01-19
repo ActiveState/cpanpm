@@ -1771,6 +1771,7 @@ is part of the perl-%s distribution. To install that, you need to run
     $CPAN::META->set_perl5lib;
     local $ENV{MAKEFLAGS}; # protect us from outer make calls
 
+    local $ENV{PATH} = $ENV{PATH};
     if ($^O eq "MSWin32") {
 	# Remove Cygwin from the PATH to avoid confusing MakeFile.PL of some distributions
 	$ENV{PATH} = join ';', grep !/cygwin[\\\/]bin/i, split /;+/, $ENV{PATH};
