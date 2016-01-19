@@ -911,7 +911,7 @@ sub try_download {
 
                 $readfh = CPAN::Tarzip->TIEHANDLE($patch); # open again
                 my $writefh = FileHandle->new;
-                $CPAN::Frontend->myprint("  $pcommand\n");
+                $CPAN::Frontend->myprint("  $pcommand <<EOT\n");
                 unless (open $writefh, "|$pcommand") {
                     my $fail = "Could not fork '$pcommand'";
                     $CPAN::Frontend->mywarn("$fail; cannot continue\n");
@@ -922,7 +922,9 @@ sub try_download {
                 binmode($writefh);
                 while (my $x = $readfh->READLINE) {
                     print $writefh $x;
+                    $CPAN::Frontend->myprint($x);
                 }
+                $CPAN::Frontend->myprint("EOT\n");
                 unless (close $writefh) {
                     my $fail = "Could not apply patch '$patch'";
                     $CPAN::Frontend->mywarn("$fail; cannot continue\n");
