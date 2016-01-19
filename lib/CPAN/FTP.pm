@@ -19,6 +19,7 @@ $VERSION = "5.5005";
 #-> sub CPAN::FTP::ftp_statistics
 # if they want to rewrite, they need to pass in a filehandle
 sub _ftp_statistics {
+    return if $^O eq "MSWin32";
     my($self,$fh) = @_;
     my $locktype = $fh ? LOCK_EX : LOCK_SH;
     # XXX On Windows flock() implements mandatory locking, so we can
@@ -99,7 +100,7 @@ sub _add_to_statistics {
         my @debug;
         @debug = $time if $sdebug;
         my $fullstats = $self->_ftp_statistics($fh);
-        close $fh;
+        close $fh if defined $fh->fileno;
         $fullstats->{history} ||= [];
         push @debug, scalar @{$fullstats->{history}} if $sdebug;
         push @debug, time if $sdebug;
