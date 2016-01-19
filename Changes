@@ -1,3 +1,204 @@
+2015-03-13  k  <andk@cpan.org>
+
+	* release 2.10
+
+	* same code as 2.10-TRIAL
+
+2015-02-22  k  <andk@cpan.org>
+
+	* release 2.10-TRIAL
+
+	* Fix Makefile/Build file test in prereq_pm (Craig A. Berry; RT 98265)
+
+	* Don't use list assignment to %ENV in Distribution::make (Craig A.
+	Berry; RT 98265)
+
+	* Bump $VERSION in changed modules (for integration into blead, post
+	5.21.9) (Steve Hay)
+
+	* bump requirement for Socket.pm on Windows (Alexandr Ciornii)
+
+2015-02-02  k  <andk@cpan.org>
+
+	* release 2.09-TRIAL
+
+	* tune verbosity of failing tests in 30shell.t (Andreas Koenig)
+
+	* find or fetch MIRRORED.BY -- github #84 (brian d foy)
+
+	* bump $VERSION in modules changed since CPAN-2.00 -- github #83 (Steve
+	Hay)
+
+2015-01-05  k  <andk@cpan.org>
+
+	* release 2.08-TRIAL
+
+	* fixes binary test files github #81 (brian d foy)
+
+2015-01-04  k  <andk@cpan.org>
+
+	* release 2.07-TRIAL
+
+	* add support for Cwd::getdcwd and introduce workaround for a
+	misbehaviour seen on Strawberry perl 5.20.1 (Andreas Koenig)
+
+	* fixes bug that possibly CPAN::Meta::Requirements was not loaded in
+	time (Andreas Koenig)
+
+	* silences unini warnings from missing environment variables (tlhackque)
+
+	* fixes chdir after building dependencies bug github #79 and #80 (David
+	Schweikert)
+
+	* some new and some improved distroprefes files, and some have gone too
+	(Andreas Koenig, Slaven Rezic)
+
+	* introduces experimental support for plugins/hooks (#apw2014 in
+	Salzburg; Andreas Koenig, Branislav Zahradnik)
+
+	* catches more user errors on the 'o conf' commandline (Andreas Koenig)
+
+	* integrates the App::Cpan sources taken over from brian with lots of
+	cleanup from him, so that they have less chance to digress (brian d foy)
+
+	* fixes clear_credentials that were completely broken (Len Jaffe)
+
+	* fixes typos (David Horner)
+
+2014-08-06  k  <andk@cpan.org>
+
+	* release 2.06-TRIAL
+
+	* lazy load CPAN::Meta::Requirements (David Golden)
+
+	* fix $rtt handling in App::Cpan (Peter Martini)
+
+	* bump CPAN::Meta::Requirements requirement (Karen Etheridge)
+
+	* fix unini warning in App::Cpan (mudler)
+
+	* tiny distroprefs fixes (Andreas Koenig)
+
+	* remove beta warning from distroprefs documentation (Andreas Koenig)
+
+	* do not check recursion on optional dependencies (Andreas Koenig)
+
+	* address rt.cpan.org #95271: sanity check META.yml to contain a hash
+	(Alexandr Ciornii, Andreas Koenig)
+
+2014-04-18  k  <andk@cpan.org>
+
+	* release 2.05
+
+	* amendments to the Changes file only, no code change: the github issue
+	numbers were confused in the TRIAL releases. Thanks to Steve Hay for
+	spotting.
+
+2014-04-04  k  <andk@cpan.org>
+
+	* release 2.05-TRIAL2
+
+	* doc improvement for scan_cache/atstart (Slaven Rezic)
+
+	* test improvement in 31session to fix false positives
+
+2014-03-31  k  <andk@cpan.org>
+
+	* release 2.05-TRIAL
+
+	* take github #68 as 086c901: smoke faster (Alexandr Ciornii)
+
+	* take github #67 as cfa93ad, to fix github #64: local::lib shell
+	variable string output (David Golden)
+
+	* take github #66 as 4c0da4e, to fix github #65: loop with "notest test
+	some-module-with-dependencies" (Andreas Koenig, David Golden)
+
+2014-03-18  Andreas Koenig  <k@UX31A>
+
+	* release 2.04-TRIAL
+
+	* history of master branch was rewritten after Tour de France bughunting
+	(Lyon #QA2014); apologies to all repository followers: the real history,
+	as it actually went, is not worth being recorded in the master branch.
+
+	* address #91706 and #86915: the 'force install' bug and the endless
+	loop bugs reported in the two tickets are fixed (joined forces)
+
+	* new configure option 'use_prompt_default' (David Golden)
+
+	* add new dummy distros OptionalPrereq and CircularPrereq for testing
+	recommends/suggests support
+
+	* experimental recommends/suggests support (David Golden, Andreas Koenig)
+
+	* enable hiding of directories in the distroprefs tree (suggested by
+	Slaven Rezić)
+
+2013-09-15  k  <andk@cpan.org>
+
+	* release 2.03-TRIAL
+
+	* load META.yml not META.json (Tatsuhiko Miyagawa)
+
+	* support numerics in cpan IDs (Tatsuhiko Miyagawa)
+
+	* address #88565: fix unreachable core bug (Father Chrysostomos, David
+	Golden, bb225be54aff753058e149c95ac3047f54892746)
+
+	* address #76831: spaces on Win32 combined with
+	make_install_make_command (Reini Urban, Steve Hay)
+
+	* address #86405, #86406: fix typos, clarify comments (found by David
+	Steinbrunner)
+
+	* address #86915: upgrade build method from "make" to "test" on
+	dependencies declared as build_requires (Andreas Koenig,
+	fa1d3087d5246a08741c944768a9732c35c944af)
+
+2013-06-23  Andreas Koenig  <k@UX31A>
+
+	* release 2.02-TRIAL
+
+	* the production of META.json was missing in 2.01
+
+2013-06-22  Andreas Koenig  <k@UX31A>
+
+	* release 2.01-TRIAL
+
+	* add binmode in two places in CPAN::Tarzip (Dave Saville via RT #86328)
+
+	* make distroprefs tolerant against missing prefs dir (akoenig)
+
+	* regain 5.6.2 compatibility (akoenig)
+
+	* add PAUSE key up to 2015 (akoenig)
+
+2013-06-18  Andreas Koenig  <k@UX31A>
+
+	* Use CPAN::Mirrors correctly (brian d foy)
+
+	* Add default_mirror(), clean up docs a bit (brian d foy)
+
+	* allow subdirectories in distroprefs (Alexandr Ciornii)
+
+	* www.cpan.org is now the default CPAN mirror (David Golden)
+
+	* Adds recommends_policy and suggests_policy to support recommended and
+	suggested prerequisites (David Golden; incomplete because partially
+	reverted)
+
+	* Adds recommends_policy and suggests_policy to support (David Golden;
+	incomplete because partially reverted)
+
+	* Fix various prerequisite resolution bugs (David Golden)
+
+	* Internal: Split 'make' method into 'prepare' and 'make' methods
+	  (Matt S. Trout and David Golden)
+
+	* Internal: Refactor get/prepare/make/test/install shortcut logic
+	  and return values (David Golden)
+
 2013-04-12  Andreas Koenig  <k@UX31A>
 
 	* release 2.00 (at Lancester #QA2013)

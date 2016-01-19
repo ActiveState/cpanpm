@@ -202,7 +202,7 @@ END {
 }
 our(@SESSIONS, $default_system, $prompt_re);
 BEGIN {
-    my $cwd = Cwd::cwd;
+    my $cwd = CPAN::anycwd();
 
     #  2>&1 is no solution. I intertwingled them, I missed a few "ok"
     $default_system = join(" ", map { "\"$_\"" } run_shell_cmd_lit($cwd))." > test.out";
@@ -219,6 +219,52 @@ EOF
 
     @SESSIONS =
         (
+         {
+          name => "illegal-regexp",
+          perl_mm_use_default => 0,
+          pairs =>
+          [
+           "o conf /*list/" => "Cannot parse",
+          ]
+         },
+         {
+          name => "notest-test-dep",
+          perl_mm_use_default => 0,
+          pairs =>
+          [
+           "notest test CPAN::Test::Dummy::Perl5::Build::DepeFails" => join
+           ("",
+            "Running\\sBuild\\sfor[\\s\\S]+",
+            "Skipping test because of notest pragma[\\s\\S]+",
+            "Skipping test because of notest pragma[\\s\\S]+",
+           ),
+          ]
+         },
+         {
+          name => "recommends",
+          tabu => ["CPAN::Test::Dummy::Perl5::Make::CircularPrereq"],
+          perl_mm_use_default => 0,
+          pairs =>
+          [
+           "o conf recommends_policy 1" => ".",
+           "test CPAN::Test::Dummy::Perl5::Make::OptionalPrereq" => join
+           ("",
+            "Running\\smake\\sfor\\sA/AN/ANDK/CPAN-Test-Dummy-Perl5-Make-OptionalPrereq[\\s\\S]+",
+            "Circular.+?requires,optional[\\s\\S]+",
+            "00_load.t.+?ok[\\s\\S]+",
+            "Running\\smake\\sfor\\sA/AN/ANDK/CPAN-Test-Dummy-Perl5-Make-CircularPrereq[\\s\\S]+",
+            "00_load.t.+?ok[\\s\\S]+",
+           ),
+          ]
+         },
+         {
+          name => "simple make call on a configure_requires",
+          perl_mm_use_default => 0,
+          pairs =>
+          [
+           "make CPAN::Test::Dummy::Perl5::Make::ConfReq" => "make(?:\\.exe)? -- OK",
+          ]
+         },
          {
           name => "rm while degraded",
           perl_mm_use_default => 0,
@@ -461,6 +507,17 @@ SESSION_RUN: for my $si (0..$#SESSIONS) {
     if (%limit_to_sessions) {
         next SESSION_RUN unless $limit_to_sessions{$session->{name}};
     }
+    if (my $tabu = $session->{tabu}) {
+        my $skip;
+    SKIP: for my $t (@$tabu) {
+            if ($CPAN::META->has_inst($t)) {
+                $skip=1;
+                my $tests = scalar(@{$session->{pairs}})/2 + 1;
+                skip "skipping test '$session->{name}' because '$t' installed", $tests;
+            }
+        }
+        next SESSION_RUN if $skip;
+    }
     my $system = $session->{system} || $default_system;
     # warn "# DEBUG: name[$session->{name}]system[$system]";
     ok($session->{name}, "opening new session '$session->{name}'");
@@ -470,7 +527,7 @@ SESSION_RUN: for my $si (0..$#SESSIONS) {
         cp _f"t/CPAN/TestMirroredBy", _f"t/dot-cpan/sources/MIRRORED.BY"
             or die "Could not cp t/CPAN/TestMirroredBy over t/dor-cpan/sources/MIRRORED.BY: $!";
         # fix timestamp "bug" (?) on Win32
-        utime( (time) x 2, _f"t/dot-cpan/sources/MIRRORED.BY" ); 
+        utime( (time) x 2, _f"t/dot-cpan/sources/MIRRORED.BY" );
     } else {
         unlink _f"t/dot-cpan/sources/MIRRORED.BY";
     }

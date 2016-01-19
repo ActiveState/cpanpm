@@ -209,7 +209,7 @@ DESCRIPTION
     "ls" author
     "ls" globbing_expression
       The first form lists all distribution files in and below an author's
-      CPAN directory as stored in the CHECKUMS files distributed on CPAN.
+      CPAN directory as stored in the CHECKSUMS files distributed on CPAN.
       The listing recurses into subdirectories.
 
       The second form limits or expands the output with shell globbing as in
@@ -324,7 +324,7 @@ DESCRIPTION
         have not yet been installed. See also "is_tested".
 
     is_tested
-        List all buid directories of distributions that have been tested
+        List all build directories of distributions that have been tested
         successfully but have not yet been installed. See also
         "install_tested".
 
@@ -432,12 +432,12 @@ DESCRIPTION
 
     Modules know their associated Distribution objects. They always refer to
     the most recent official release. Developers may mark their releases as
-    unstable development versions (by inserting an underbar into the module
-    version number which will also be reflected in the distribution name
-    when you run 'make dist'), so the really hottest and newest distribution
-    is not always the default. If a module Foo circulates on CPAN in both
-    version 1.23 and 1.23_90, CPAN.pm offers a convenient way to install
-    version 1.23 by saying
+    unstable development versions (by inserting an underscore into the
+    module version number which will also be reflected in the distribution
+    name when you run 'make dist'), so the really hottest and newest
+    distribution is not always the default. If a module Foo circulates on
+    CPAN in both version 1.23 and 1.23_90, CPAN.pm offers a convenient way
+    to install version 1.23 by saying
 
         install Foo
 
@@ -485,6 +485,38 @@ DESCRIPTION
     cpan shell only when surrounded by whitespace. So piping to pager or
     redirecting output into a file works somewhat as in a normal shell, with
     the stipulation that you must type extra spaces.
+
+  Plugin support ***EXPERIMENTAL***
+    Plugins are objects that implement any of currently eight methods:
+
+      pre_get
+      post_get
+      pre_make
+      post_make
+      pre_test
+      post_test
+      pre_install
+      post_install
+
+    The "plugin_list" configuration parameter holds a list of strings of the
+    form
+
+      Modulename=arg0,arg1,arg2,arg3,...
+
+    At run time, each listed plugin is instantiated as a singleton object by
+    running the equivalent of this pseudo code:
+
+      my $plugin = <string representation from config>;
+      <generate Modulename and arguments from $plugin>;
+      my $p = $instance{$plugin} ||= Modulename->new($arg0,$arg1,...);
+
+    The generated singletons are kept around from instantiation until the
+    end of the shell session. <plugin_list> can be reconfigured at any time
+    at run time. While the cpan shell is running, it checks all activated
+    plugins at each of the 8 reference points listed above and runs the
+    respective method if it is implemented for that object. The method is
+    called with the active CPAN::Distribution object passed in as an
+    argument.
 
 CONFIGURATION
     When the CPAN module is used for the first time, a configuration
@@ -641,6 +673,8 @@ CONFIGURATION
       patch              path to external prg
       patches_dir        local directory containing patch files
       perl5lib_verbosity verbosity level for PERL5LIB additions
+      plugin_list        list of active hooks (see Plugin support above
+                         and the CPAN::Plugin module)
       prefer_external_tar
                          per default all untar operations are done with
                          Archive::Tar; by setting this variable to true
@@ -660,12 +694,14 @@ CONFIGURATION
       proxy_user         username for accessing an authenticating proxy
       proxy_pass         password for accessing an authenticating proxy
       randomize_urllist  add some randomness to the sequence of the urllist
+      recommends_policy  whether recommended prerequisites should be included
       scan_cache         controls scanning of cache ('atstart', 'atexit' or 'never')
       shell              your favorite shell
       show_unparsable_versions
                          boolean if r command tells which modules are versionless
       show_upload_date   boolean if commands should try to determine upload date
       show_zero_versions boolean if r command tells for which modules $version==0
+      suggests_policy    whether suggested prerequisites should be included
       tar                location of external program tar
       tar_verbosity      verbosity level for the tar command
       term_is_latin      deprecated: if true Unicode is translated to ISO-8859-1
@@ -677,6 +713,7 @@ CONFIGURATION
                          CPAN::Reporter history)
       unzip              location of external program unzip
       urllist            arrayref to nearby CPAN sites (or equivalent locations)
+      use_prompt_default set PERL_MM_USE_DEFAULT for configure/make/test/install
       use_sqlite         use CPAN::SQLite for metadata storage (fast and lean)
       username           your username if you CPAN server wants one
       version_timeout    stops version parsing after this many seconds.
@@ -731,6 +768,9 @@ CONFIGURATION
 
     fastcwd
         Calls Cwd::fastcwd
+
+    getdcwd
+        Calls Cwd::getdcwd
 
     backtickcwd
         Calls the external command cwd.
@@ -793,8 +833,7 @@ CONFIGURATION
     user and sets the default accordingly.
 
   Configuration for individual distributions (*Distroprefs*)
-    (Note: This feature has been introduced in CPAN.pm 1.8854 and is still
-    considered beta quality)
+    (Note: This feature has been introduced in CPAN.pm 1.8854)
 
     Distributions on CPAN usually behave according to what we call the CPAN
     mantra. Or since the advent of Module::Build we should talk about two
@@ -1738,6 +1777,10 @@ UTILITIES
 
       See the source for details.
 
+    use_inst($module)
+      Similary to has_inst() tries to load optional library but also dies if
+      library is not available
+
     has_usable($module)
       Returns true if the module is installed and in a usable state. Only
       useful for a handful of modules that are used internally. See the
@@ -1747,6 +1790,11 @@ UTILITIES
       The constructor for all the singletons used to represent modules,
       distributions, authors, and bundles. If the object already exists,
       this method returns the object; otherwise, it calls the constructor.
+
+    frontend()
+    frontend($new_frontend)
+      Getter/setter for frontend object. Method just allows to subclass
+      CPAN.pm.
 
 SECURITY
     There's no strong security layer in CPAN.pm. CPAN.pm helps you to
@@ -2072,7 +2120,7 @@ FAQ
         Henk P. Penning maintains a site that collects data about CPAN
         sites:
 
-          http://www.cs.uu.nl/people/henkp/mirmon/cpan.html
+          http://mirrors.cpan.org/
 
         Also, feel free to play with experimental features. Run
 
@@ -2102,8 +2150,9 @@ FAQ
         You have the choice to set the config variable "scan_cache" to
         "never". Then you must clean it up yourself. The other possible
         values, "atstart" and "atexit" clean up the build directory when you
-        start or exit the CPAN shell, respectively. If you never start up
-        the CPAN shell, you probably also have to clean up the build
+        start (or more precisely, after the first extraction into the build
+        directory) or exit the CPAN shell, respectively. If you never start
+        up the CPAN shell, you probably also have to clean up the build
         directory yourself.
 
 COMPATIBILITY

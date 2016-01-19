@@ -246,7 +246,7 @@ is($CPAN::Config->{histsize},100,"histsize is 100 before testing");
 
 my $prompt = "cpan>";
 my $prompt_re = "cpan[^>]*>"; # note: replicated in DATA!
-my $default_timeout = 240;
+my $default_timeout = $ENV{CPAN_EXPECT_TIMEOUT} || 240;
 
 $|=1;
 if ($ENV{CPAN_RUN_SHELL_TEST_WITHOUT_EXPECT}) {
@@ -359,9 +359,10 @@ expected[$expected]\ngot[$got]\n\n";
                         } ],
                       [ timeout => sub {
                             my $got = $expo->clear_accum;
+                            # diag for cpantesters
                             diag "timed out on i[$i]prog[$prog]
 expected[$expected]\ngot[$got]\n\n";
-                            mydiag sprintf(
+                            diag sprintf(
                                          "and perl says that [[[%s]]] %s match [[[%s]]]!",
                                          $got,
                                          $got=~/$expected/ ? "DOES" : "doesN'T",
@@ -420,6 +421,7 @@ if ($RUN_EXPECT) {
         } else {
             my $pos = pos $biggot;
             my $got = substr($biggot,$pos,1024);
+            # diag for cpantesters
             diag "FAILED at pos[$pos]\nprog[$prog]\nexpected[$expected]\ngot[$got]";
             last;
             $ok = 0;
@@ -467,8 +469,9 @@ __END__
 #P:
 #E:(?s:New urllist.+?commit.+?(!).+?\])
 ########
+#C:the answer depends on Net::Ping availability
 #P:o conf init urllist
-#E:(?s:Would you like me to automatically choose.+?yes\])
+#E:(?s:Would you like me to automatically choose.+?yes\]|Autoselection disabled)
 ########
 #P:n
 #E:Would you like to.+?pick.+?mirror.+?list.+?yes(\])
@@ -961,7 +964,7 @@ __END__
 #E:\}.+?CPAN::Distributio.
 ########
 #P:make CPAN::Test::Dummy::Perl5::BuildOrMake
-#E:(?s:Running Build.*?Creating new.*?Build\s+-- OK)
+#E:(?s:Build\s+-- OK)
 #R:Module::Build
 #C:second try
 ########
@@ -973,7 +976,7 @@ __END__
 #E:\}.+?CPAN::Distributio.
 ########
 #P:notest test ANDK/CPAN-Test-Dummy-Perl5-BuildOrMake-1.02.tar.gz
-#E:Running Build[\s\S]*?Creating new[\s\S]*?Build\s+-- OK[\s\S]+?Skipping test
+#E:Build\s+-- OK[\s\S]+?Skipping test
 #R:Module::Build
 ########
 #P:dump ANDK/CPAN-Test-Dummy-Perl5-BuildOrMake-1.02.tar.gz
@@ -1187,15 +1190,15 @@ To add a new distro, the following steps must be taken:
 
 (1) Collect the source
 
-- svn mkdir the author's directory if it doesn't exist yet; e.g.
+- mkdir the author's directory if it doesn't exist yet; e.g.
 
-  svk mkdir t/CPAN/authors/id/A/AN/ANDK
+  mkdir -p t/CPAN/authors/id/A/AN/ANDK
   cd t/CPAN/authors/id/A/AN/ANDK
 
-- svn add (or svn cp) the whole source code under the author's
-  homedir; e.g.
+- introduce the whole source code under the author's
+  homedir, often just a copy; e.g.
 
-  svk cp CPAN-Test-Dummy-Perl5-Make-CircDepeOne CPAN-Test-Dummy-Perl5-Make-Expect
+  rsync -va CPAN-Test-Dummy-Perl5-Make-CircDepeOne CPAN-Test-Dummy-Perl5-Make-Expect
 
 - add the source code directory with a trailing slash to ../MANIFEST.SKIP
 
@@ -1207,7 +1210,7 @@ To add a new distro, the following steps must be taken:
   the whole dependency on all files within the distro and moves it up
   into the author's homedir. Run this with 'make testdistros'.
 
-- *svn add* the new testdistro (first we did that, then we stopped
+- *git add* the new testdistro (first we did that, then we stopped
   doing it for "it makes no sense"; then I realized we need to do it
   because with a newer MakeMaker or Module::Build we cannot regenerate
   them byte-by-byte and lose the signature war)
@@ -1223,7 +1226,7 @@ To add a new distro, the following steps must be taken:
 - upload the distro(s) to the CPAN and wait until the indexer has
   produced a CHECKSUMS file
 
-- svn add/ci the relevant CHECKSUMS files
+- git add/commit the relevant CHECKSUMS files
 
 - add the CHECKSUMS files to the MANIFEST
 
@@ -1236,7 +1239,7 @@ To add a new distro, the following steps must be taken:
   distro name; if there is more than one module or bundle inside the
   distro, write two lines; watch the line count;
 
-- if this distro replaces another, svn rm the other one
+- if this distro replaces another, git-rm the other one
 
 - if this distro replaces another, fix the tests that rely on the
   other one
@@ -1245,12 +1248,12 @@ To add a new distro, the following steps must be taken:
 
 =head2 Problems
 
-When you set up a new working copy of the SVN repository, you first
-have to run 'make testdistros' to get the pseudo distros that are not
-in the repository. This makes too many testdistros, so you must run
-'svk st' and see which are marked with 'M'. You must revert those and
-then the 30shell test should succeed. I'm sure this can be fixed but
-haven't yet found out how.
+With SVN we had the problem that when you set up a new working copy of
+the SVN repository, you first had to run 'make testdistros' to get the
+pseudo distros that were not in the repository. This made too many
+testdistros, so you had to run 'svk st' and see which were marked with
+'M'. Then you had to revert those and then the 30shell test should
+succeed. This has now been corrected for git repos.
 
 =cut
 

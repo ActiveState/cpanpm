@@ -23,8 +23,13 @@
 ^blibdirs
 ^cover_db/
 ^cp-to-perl.pl
+
+# used by scripts/cpan to test installations
+^cpan-home
+
 ^cpan_reports_
 ^cpantesters-show/
+^dagolden-reversion-gist.pl
 ^distroprefs/ttt.nodbi.yml
 ^distroprefs/ttt.nodbi.yml.bak
 ^distroprefs/ttt.nomailsend.yml
@@ -47,7 +52,6 @@
 ^protocols/
 ^related/
 ^release-lib
-^scripts/cpan-mirrors
 ^t/CPAN/MyConfig\.pm
 ^t/CPAN/authors/id/A/AN/ANDK/CHECKSUMS@
 ^t/CPAN/authors/id/A/AN/ANDK/CPAN-Test-Dummy-Perl5-Build-DepeFails/
@@ -63,6 +67,8 @@
 ^t/CPAN/authors/id/A/AN/ANDK/CPAN-Test-Dummy-Perl5-Make-Failearly/
 ^t/CPAN/authors/id/A/AN/ANDK/CPAN-Test-Dummy-Perl5-Make-Features/
 ^t/CPAN/authors/id/A/AN/ANDK/CPAN-Test-Dummy-Perl5-Make-TimeSkew/
+^t/CPAN/authors/id/A/AN/ANDK/CPAN-Test-Dummy-Perl5-Make-CircularPrereq/
+^t/CPAN/authors/id/A/AN/ANDK/CPAN-Test-Dummy-Perl5-Make-OptionalPrereq/
 ^t/CPAN/authors/id/A/AN/ANDK/CPAN-Test-Dummy-Perl5-Make-UnsatPrereq/
 ^t/CPAN/authors/id/A/AN/ANDK/CPAN-Test-Dummy-Perl5-Make-Zip/
 ^t/CPAN/authors/id/A/AN/ANDK/CPAN-Test-Dummy-Perl5-Make/
@@ -87,3 +93,5 @@ cpanstats.db
 ^ttt
 .DS_Store
 ^cpandb
+^_eumm
+^revert-planning.txt
